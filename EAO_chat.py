@@ -22,7 +22,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAI
 
-OPENAI_ACCESS_TOKEN = "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"
+OPENAI_ACCESS_TOKEN = "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"
 
 st.set_page_config(page_title="EAO_Chat", page_icon=":tiger:")
 st.title(":tiger: EAO_chat")
