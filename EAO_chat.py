@@ -22,7 +22,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAI
 
-OPENAI_ACCESS_TOKEN = "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"
+OPENAI_ACCESS_TOKEN = "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"
 
 st.set_page_config(page_title="EAO_Chat", page_icon=":tiger:")
 st.title(":tiger: EAO_chat")
@@ -59,9 +59,9 @@ document = documentloader.load()
 loader = DirectoryLoader(st.session_state['json_path'], glob="**/*.json",show_progress=True, loader_cls=JSONLoader, loader_kwargs = {'jq_schema':'.','text_content':False})
 jsons = loader.load()
 
-new_prompt_template = PromptTemplate(input_variables=['question'], template="You are Json Analyser now! You will be given data of a single json or multiple jsons which consists of query execution stats for a query which one refers to with QueryID for every json.Looking at the json/s: \n{data}\n and keeping the document :\n{document}\n as reference, answer to the {question}!Keep the points in mind 1)If the question is related to performance, consider showing some snippet or some part of the json which was provided earlier.2)In case of two or more jsons data, refer a document/json with queryID of it(as a query). Keep your explanation to maximum 100 tokens")
-# memory = ConversationBufferWindowMemory(k=10)
-QnA_teller = LLMChain(llm=llm,prompt= new_prompt_template,verbose= False)
+new_prompt_template = PromptTemplate(input_variables=['question','data','document'], template="You are Json Analyser now! You will be given data of a single json or multiple jsons which consists of query execution stats for a query which one refers to with QueryID for every json.Looking at the json/s: \n{data}\n and keeping the document :\n{document}\n as reference, answer to the {question}!Keep the points in mind 1)If the question is related to performance, consider showing some snippet or some part of the json which was provided earlier.2)In case of two or more jsons data, refer a document/json with queryID of it(as a query). Keep your explanation to maximum 100 tokens")
+memory = ConversationBufferWindowMemory(input_key='question',k=10)
+QnA_teller = LLMChain(llm=llm,prompt= new_prompt_template,verbose= False,memory=memory)
 
 # button for clearing previous chat
 if st.button('Clear Chat'):
@@ -76,6 +76,7 @@ if prompt := st.chat_input():
            response = QnA_teller({'question': prompt, 'document': document, 'data': jsons})
            msgs.add_ai_message(response['text'])
            st.chat_message("ai").write(response['text']) 
+           print(memory.load_memory_variables({}))
 with view_messages:
             view_messages.json(st.session_state.langchain_messages)
 
