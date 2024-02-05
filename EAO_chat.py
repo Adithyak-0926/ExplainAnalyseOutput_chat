@@ -1,8 +1,6 @@
 import streamlit as st
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
 
-import random
-
 import json
 from pathlib import Path
 
@@ -56,13 +54,8 @@ llm = ChatOpenAI(
 #specifying the doc that contains all definitions of E0A metrics
 documentloader = PyPDFLoader("/home/kanamarlapudi/Downloads/ExplainAnalyseOutput-2.pdf")
 document = documentloader.load()
-# /home/kanamarlapudi/Downloads/jsonStat_test/query_Q87053-80-20231009.094002.554.json
-# loader = JSONLoader(st.session_state['json_path'],
-#                         jq_schema='.',
-#              text_content=False)
-# data = loader.load()
 
-path = '/home/kanamarlapudi/Downloads/jsonStat_test'
+#loads all the jsons data from the folder provided by the user
 loader = DirectoryLoader(st.session_state['json_path'], glob="**/*.json",show_progress=True, loader_cls=JSONLoader, loader_kwargs = {'jq_schema':'.','text_content':False})
 jsons = loader.load()
 
