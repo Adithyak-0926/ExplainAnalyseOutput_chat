@@ -4,7 +4,7 @@ ExplainAnalyseOutput is the json that contains all the metrics for different sta
 
 This project is a chatbot that provides insights or analysis of the EAO json that is provided by the user. 
 
-Installation needed,  
+**Installations needed:**  
 langchain:  
 ```pip install langchain```
 
