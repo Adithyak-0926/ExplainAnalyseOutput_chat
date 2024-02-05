@@ -4,3 +4,11 @@ ExplainAnalyseOutput is the json that contains all the metrics for different sta
 
 This project is a chatbot that provides insights or analysis of the EAO json that is provided by the user. 
 
+Installation needed,  
+langchain:  
+''' pip install langchain '''
+streamlit:  
+''' pip install streamlit '''
+langchain_community:  
+''' pip install langchain_community '''
+
