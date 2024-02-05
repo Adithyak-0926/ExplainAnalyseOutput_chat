@@ -6,11 +6,11 @@ This project is a chatbot that provides insights or analysis of the EAO json tha
 
 Installation needed,  
 langchain:  
-'''pip install langchain'''
+```pip install langchain```
 
 streamlit:  
-'''pip install streamlit'''
+```pip install streamlit```
 
 langchain_community:  
-'''pip install langchain_community'''
+```pip install langchain_community```
 
