@@ -22,14 +22,9 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAI
 
-from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Access the API key from the environment variable
-OPENAI_ACCESS_TOKEN = os.getenv('OPENAI_ACCESS_KEY')
+OPENAI_ACCESS_TOKEN = os.environ.get('OPENAI_ACCESS_KEY')
 
 st.set_page_config(page_title="EAO_Chat", page_icon=":tiger:")
 st.title(":tiger: EAO_chat")
