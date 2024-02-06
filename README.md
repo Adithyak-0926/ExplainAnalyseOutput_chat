@@ -1,25 +1,18 @@
-# ExplainAnalyseOutput_chat
+# ExplainAnalyseOutput_chat  
+ 
+This project is a chatbot that provides insights or analysis of the EAO json that is provided by the user. 
+
 **What is ExplainAnalyseOutput?**  
 ExplainAnalyseOutput is the json that contains all the metrics for different stages/operations that is generated after a query's execution.
 
-This project is a chatbot that provides insights or analysis of the EAO json that is provided by the user. 
-
 **Installations needed:**  
-langchain:  
-```pip install langchain```
-
-streamlit:  
-```pip install streamlit```
-
-langchain_community:  
-```pip install langchain_community```
-
-
+langchain, langchain_community, streamlit, python-dotenv:  
+```pip install langchain streamlit langchain_community python-dotenv```
 
 Follow through:  
 1) Open the file EAO_chat.py in any editor and Enter the path of EAO documentation in the appropriate place(at PyPdfLoader part).You can download the pdf of EAO documentation here [EAO_DOCUMENTATION](https://drive.google.com/file/d/1pZix9Cr62dksU2ZVRcz-SWXzPvL11K_8/view?usp=sharing)
 
-2) open the terminal in the folder where you have the EAO_chat.py file and run the below.  
+2) open the terminal in the folder where you have the EAO_chat.py file or pull the repo, open the terminal and run the below.  
        ```streamlit run EAO_chat.py```
 
 3) Now you will be directed to a web page. Provide the path of the folder that contains the ExplainAnalyseOutput Jsons in the box provided first and press enter.  
