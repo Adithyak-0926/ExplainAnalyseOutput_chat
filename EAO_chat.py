@@ -59,10 +59,9 @@ llm = ChatOpenAI(
            # model="gpt-3.5-turbo"
          )
 #specifying the doc that contains all definitions of E0A metrics
-path_for_eao_documentation = os.getenv('PATH_FOR_EAO_DOCUMENTATION')
-documentloader = PyPDFLoader(path_for_eao_documentation)
+documentloader = PyPDFLoader('explainAnalizeOutput _documentation.pdf')
 document = documentloader.load()
-
+print(document)
 #loads all the jsons data from the folder provided by the user
 loader = DirectoryLoader(st.session_state['json_path'], glob="**/*.json",show_progress=True, loader_cls=JSONLoader, loader_kwargs = {'jq_schema':'.','text_content':False})
 jsons = loader.load()

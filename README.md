@@ -10,7 +10,8 @@ langchain, langchain_community, streamlit, python-dotenv:
 ```pip install langchain streamlit langchain_community python-dotenv```
 
 Follow through:  
-1) Open the file EAO_chat.py in any editor and Enter the path of EAO documentation in the appropriate place(at PyPdfLoader part).You can download the pdf of EAO documentation here [EAO_DOCUMENTATION](https://drive.google.com/file/d/1pZix9Cr62dksU2ZVRcz-SWXzPvL11K_8/view?usp=sharing)
+1) Pull the repository, add a .env file like shown below and add your openai_api_key and path to eao_documentation
+    You can download the pdf of EAO documentation here [EAO_DOCUMENTATION](https://drive.google.com/file/d/1pZix9Cr62dksU2ZVRcz-SWXzPvL11K_8/view?usp=sharing)
 
 2) open the terminal in the folder where you have the EAO_chat.py file or pull the repo, open the terminal and run the below.  
        ```streamlit run EAO_chat.py```
