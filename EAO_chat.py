@@ -61,7 +61,7 @@ llm = ChatOpenAI(
 #specifying the doc that contains all definitions of E0A metrics
 documentloader = PyPDFLoader('explainAnalizeOutput _documentation.pdf')
 document = documentloader.load()
-print(document)
+
 #loads all the jsons data from the folder provided by the user
 loader = DirectoryLoader(st.session_state['json_path'], glob="**/*.json",show_progress=True, loader_cls=JSONLoader, loader_kwargs = {'jq_schema':'.','text_content':False})
 jsons = loader.load()
