@@ -22,7 +22,14 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAI
 
-OPENAI_ACCESS_TOKEN = "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"
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access the API key from the environment variable
+OPENAI_ACCESS_TOKEN = os.getenv('OPENAI_ACCESS_KEY')
 
 st.set_page_config(page_title="EAO_Chat", page_icon=":tiger:")
 st.title(":tiger: EAO_chat")
@@ -52,7 +59,7 @@ llm = ChatOpenAI(
            # model="gpt-3.5-turbo"
          )
 #specifying the doc that contains all definitions of E0A metrics
-documentloader = PyPDFLoader("/home/kanamarlapudi/Downloads/ExplainAnalyseOutput-2.pdf")
+documentloader = PyPDFLoader("/home/kanamarlapudi/Downloads/explainAnalizeOutput _documentation.pdf")
 document = documentloader.load()
 
 #loads all the jsons data from the folder provided by the user
