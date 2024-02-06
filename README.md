@@ -17,7 +17,7 @@ langchain_community:
 
 
 Follow through:  
-1) Open the file EAO_chat.py in any editor and Enter the path of EAO documentation in the appropriate place(at PyPdfLoader part).You can download the pdf of EAO documentation here [EAO_DOCUMENTATION][https://drive.google.com/file/d/1pZix9Cr62dksU2ZVRcz-SWXzPvL11K_8/view?usp=sharing]
+1) Open the file EAO_chat.py in any editor and Enter the path of EAO documentation in the appropriate place(at PyPdfLoader part).You can download the pdf of EAO documentation here [EAO_DOCUMENTATION](https://drive.google.com/file/d/1pZix9Cr62dksU2ZVRcz-SWXzPvL11K_8/view?usp=sharing)
 
 2) open the terminal in the folder where you have the EAO_chat.py file and run the below.  
        ```streamlit run EAO_chat.py```
