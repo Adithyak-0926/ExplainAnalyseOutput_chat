@@ -2,7 +2,7 @@ import streamlit as st
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
 
 import json
-from pathlib import Path
+import time
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import JSONLoader
@@ -21,6 +21,8 @@ from langchain.memory import ConversationBufferWindowMemory
 
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAI
+from langchain.callbacks import get_openai_callback
+
 
 import os
 
@@ -42,6 +44,18 @@ if not st.session_state['json_path']:
 if 'langchain_messages' not in st.session_state:
     st.session_state['langchain_messages'] = []
 
+# #loads all the jsons data from the folder provided by the user
+if 'cached_jsons' not in st.session_state or st.session_state['cached_jsons'] is None:
+    # If JSON path is provided, attempt to load JSON data
+    if st.session_state['json_path']:
+        try:
+            loader = DirectoryLoader(st.session_state['json_path'], glob="**/*.json", show_progress=True, loader_cls=JSONLoader, loader_kwargs={'jq_schema': '.', 'text_content': False})
+            st.session_state['cached_jsons'] = loader.load()
+            # print(st.session_state['cached_jsons'])
+        except Exception as e:
+            st.error(f"Error loading JSON files: {e}")
+            st.stop()    
+
 # Set up memory
 msgs = StreamlitChatMessageHistory(key="langchain_messages")
 if len(msgs.messages) == 0:
@@ -50,16 +64,13 @@ if len(msgs.messages) == 0:
 llm = ChatOpenAI(
           temperature=0,
           api_key=OPENAI_ACCESS_TOKEN,
-          model="gpt-4-1106-preview"
-           # model="gpt-3.5-turbo"
+          model="gpt-4-1106-preview",
          )
+
 #specifying the doc that contains all definitions of E0A metrics
 documentloader = PyPDFLoader('explainAnalizeOutput _documentation.pdf')
 document = documentloader.load()
-
-#loads all the jsons data from the folder provided by the user
-loader = DirectoryLoader(st.session_state['json_path'], glob="**/*.json",show_progress=True, loader_cls=JSONLoader, loader_kwargs = {'jq_schema':'.','text_content':False})
-jsons = loader.load()
+# print(document)
 
 new_prompt_template = PromptTemplate(input_variables=['question','data','document'], template="You are Json Analyser now! You will be given data of a single json or multiple jsons which consists of query execution stats for a query which one refers to with QueryID for every json.Looking at the json/s: \n{data}\n and keeping the document :\n{document}\n as reference, answer to the {question}!Keep the points in mind 1)If the question is related to performance, consider showing some snippet or some part of the json which was provided earlier.2)In case of two or more jsons data, refer a document/json with queryID of it(as a query). Keep your explanation to maximum 100 tokens")
 memory = ConversationBufferWindowMemory(input_key='question',k=10)
@@ -74,11 +85,20 @@ for msg in msgs.messages:
 
 view_messages = st.expander("your chat history in this session")
 if prompt := st.chat_input():
+           start_time = time.time()
            msgs.add_user_message(prompt)
-           response = QnA_teller({'question': prompt, 'document': document, 'data': jsons})
+           with get_openai_callback() as cb:
+              response = QnA_teller({'question': prompt, 'document': document, 'data': st.session_state['cached_jsons']})
+              # Print token usage details
+              print(f"Total Tokens: {cb.total_tokens}")
+              print(f"Prompt Tokens: {cb.prompt_tokens}")
+              print(f"Completion Tokens: {cb.completion_tokens}")
+              print(f"Total Cost (USD): ${cb.total_cost}")
+           print(f"time taken for the question: {prompt} is {time.time()-start_time}")   
            msgs.add_ai_message(response['text'])
            st.chat_message("ai").write(response['text']) 
-           print(memory.load_memory_variables({}))
+        #    print(memory.load_memory_variables({}))
+           
 with view_messages:
             view_messages.json(st.session_state.langchain_messages)
 
