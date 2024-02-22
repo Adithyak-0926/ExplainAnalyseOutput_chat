@@ -33,18 +33,22 @@ if 'json_path' not in st.session_state:
 # Step 1: Ask the user to enter the JSON path
 if not st.session_state['json_path']:
     st.session_state['json_path'] = st.text_input('Enter the path to folder containing JSON file:')
-# else:
-#     # Step 2: Show a loading spinner while processing the user's input
-#     with st.spinner('Loading...'):
+
 if 'langchain_messages' not in st.session_state:
     st.session_state['langchain_messages'] = []
    
 def extract_metrics(question,document):
-        # Define the prompt template for metric extraction
-    new_prompt_template = PromptTemplate(
-        input_variables=['question', 'document'],
-        template="You are metric extractor! Looking at the document: \n{document}\n and understanding the {question}, you need to just return the list of names of metrics whose values will be needed to answer the question. Always return ‘queryID’ and ‘Operator’ into the list regardless of the need. Note: only return the list of metrics, do not write a single token extra apart from names and do not return '- ' in front of the names of metrics in your response"
-    )
+    # Define the prompt template for metric extraction
+    metric_extractor_template = """You are a metric extractor and can extract the necessary metrics from the user question based on the context provided which is a documentation containing definitions of all metrics.
+             context : {document} \n
+             question : {question} \n
+             Instructions : 
+             1) You need to just return the list of names of metrics whose values will be needed to answer the question.
+             2) Always return ‘queryID’ and ‘Operator’ into the list regardless of the need. 
+             Note: only return the list of operators and do not write a single token extra apart from names
+           
+             """
+    new_prompt_template = PromptTemplate.from_template(template=metric_extractor_template)
 
     # Create the LLMChain for metric extraction
     metric_extractor = LLMChain(llm=llm, prompt=new_prompt_template, verbose=False)
@@ -127,14 +131,31 @@ llm = ChatOpenAI(
          )
 
 #specifying the doc that contains all definitions of E0A metrics
-documentloader = PyPDFLoader('explainAnalizeOutput _documentation.pdf')
-document = documentloader.load()
-print(str(document))
+with open('Documentantion.md', 'r') as f:
+    documentation = f.read()
 
 input_folder = st.session_state['json_path']
 output_folder = 'Temp_Json_Folder'
 
-new_prompt_template = PromptTemplate(input_variables=['question','data','document'], template="You are Json Analyser now! You will be given data of a single json or multiple jsons which consists of query execution stats for a query which one refers to with QueryID for every json.Looking at the json/s: \n{data}\n and keeping the document :\n{document}\n as reference, answer to the {question}!Keep the points in mind 1)If the question is related to performance, consider showing some snippet or some part of the json which was provided earlier.2)In case of two or more jsons data, refer a document/json with queryID of it(as a query). Keep your explanation to maximum 100 tokens")
+JSON_Analyser_template = """You are now a JSON Analyzer! You will be provided with data from one or multiple JSON files, which contain query execution statistics. Each JSON is associated with a specific query, identified by a QueryID. 
+                        JSON Data:
+                        —
+                        {data}
+                        —
+
+                        \n{document}\n as a reference, please respond to the {question}. Keep the following points in mind:
+                        If the question relates to performance, include relevant snippets or sections from the provided JSON data.
+                        When analyzing data from two or more JSON files, reference each document/JSON by its QueryID.
+                        Examples to guide your analysis:
+                        Question: How many join operators are there?
+                            Thought Process: Examine the JSON data to count the number of JOIN operators by looking at the ‘operator’ metric. Apply this process for all queries associated with unique QueryIDs.
+                        Question: What are the most expensive operators?
+                            Thought Process: Focus on the ‘cost_percent’ and ‘cost_percent_str’ metrics in the JSON data. Calculate the total sum of ‘cost_percent’ for all operators to see if it exceeds 50%. If not, consider other metrics such as ‘thread_duration’ for evaluating costs, and explain the rationale behind your metric selection.
+
+             """
+
+# new_prompt_template = PromptTemplate(input_variables=['question','data','document'], template="You are Json Analyser now! You will be given data of a single json or multiple jsons which consists of query execution stats for a query which one refers to with QueryID for every json.Looking at the json/s: \n{data}\n and keeping the document :\n{document}\n as reference, answer to the {question}!Keep the points in mind 1)If the question is related to performance, consider showing some snippet or some part of the json which was provided earlier.2)In case of two or more jsons data, refer a document/json with queryID of it(as a query). Keep your explanation to maximum 100 tokens")
+new_prompt_template = PromptTemplate.from_template(template=JSON_Analyser_template)
 memory = ConversationBufferWindowMemory(input_key='question',k=10)
 QnA_teller = LLMChain(llm=llm,prompt= new_prompt_template,verbose= False,memory=memory)
 
@@ -149,11 +170,11 @@ view_messages = st.expander("your chat history in this session")
 if prompt := st.chat_input():
            start_time = time.time()
            msgs.add_user_message(prompt)
-           process_json_files(input_folder,output_folder,prompt,document)
+           process_json_files(input_folder,output_folder,prompt,documentation)
            loader = DirectoryLoader(output_folder, glob="**/*.json", show_progress=True, loader_cls=JSONLoader, loader_kwargs={'jq_schema': '.', 'text_content': False})
            modified_data = loader.load()
            with get_openai_callback() as cb:
-              response = QnA_teller({'question': prompt, 'document': document, 'data': modified_data})
+              response = QnA_teller({'question': prompt, 'document': documentation, 'data': modified_data})
               # Print token usage details
               print(f"Total Tokens: {cb.total_tokens}")
               print(f"Prompt Tokens: {cb.prompt_tokens}")
